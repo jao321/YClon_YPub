@@ -9,15 +9,9 @@ The Python3 script implemented for that can be used in Mac OS, Linux and Windows
 Furthermore, to use this tool, you will need to install several Python libraries that are not included in the standard Python distribution. These libraries include alive_progress, pandas, numpy and scikit-learn(1.4 or higher). To install these libraries, you can use the pip command in your terminal or command prompt on your operating system:
 
               
-              pip3 install alive_progress pandas numpy scikit-learn rich
+              git clone https://github.com/jao321/YClon_YPub.git
+              pip install YClon_YPub/
               
-Copy YClon.py into a folder. 
-
-You can download the [script file(click here with the right button of the mouse and save as...)](https://raw.githubusercontent.com/jao321/YClon/main/YClon.py) or a [folder](https://github.com/jao321/YClon/archive/refs/heads/main.zip) that contains the script, the README file and an example MiAIRR file (YClon_input_test_airr_only_essential_info.tsv). Alternatively, if you have git installed you can clone the repository with the following command line:
-
-              or if you have git installed you can clone the repository with the following command line
-              git clone https://github.com/jao321/YClon.git
-
 
 Once you have installed the required libraries, you can run YClon by providing an annotated BCR file in the MiAIRR format as input. It is important to note that the input file should have a minimum of four columns: a unique sequence identifier, V gene annotation, J gene annotation, and CDR3 sequence or another comparable column. For further guidance, please refer to the example provided below:
 
@@ -27,9 +21,15 @@ Once you have installed the required libraries, you can run YClon by providing a
 | 26048436_1  | IGHV4-34*01 | IGHJ3*02 | gcgagagtgggaacagcatattgtggtggtgactgctatgatg |
 
 
-To execute YClon script, you can open a terminal window and run Python3 with the script file. 
+To execute YClon, you can open a terminal window and run: 
             
-              python3 path/YClon.py YClon_input_test_airr_only_essential_info.tsv
+              YClon YClon_input_test_airr_only_essential_info.tsv
+
+---
+# YPub
+To execute YPub , you can open a terminal window and run:
+
+              YPub --folder path/to/folder_with_repertoires_file
 
 ---
 # Arguments
