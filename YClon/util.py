@@ -159,7 +159,7 @@ def parse_AIRR(filename, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = Fa
 
 def organise_repertoires_from_folder(folder, seqID, separator):
 	rep_list = os.listdir(folder)
-	ypub_input = open(os.path.join(os.path.dirname(folder),"ypub_input.tsv"), "w")
+	ypub_input = open(os.path.join(folder,"ypub_input.tsv"), "w")
 	header=False
 	print("Organising input files")
 	for repertoire in rep_list:
