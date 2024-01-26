@@ -64,12 +64,10 @@ def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, tot
         clone = cluster_pre_clone.labels_
         maior = count + cluster_pre_clone.labels_.max() + 1
         junc_seq = junc_seq.reset_index(drop=True)
-        print(pre_clone.columns)#key = list(pre_clone["v_call"].unique())[0].split("*")[0]+","+list(pre_clone["j_call"].unique())[0].split("*")[0]+","+len(list(pre_clone[sequence_column].unique())[0])
-        clonotypes_df = pd.DataFrame(clonotypes[key])
+        clonotypes_df = pd.DataFrame(clonotypes)
         clonotypes_df.columns = [seqID,sequence_column]
         tmp_df = pre_clone
-        tmp_df.columns = ["tmp_seq",sequence_column]
-        pre_clone = pd.merge(tmp_df,clonotypes_df,on=[sequence_column])[[seqID,sequence_column]]
+        pre_clone = pd.concat([tmp_df,clonotypes_df])
         del tmp_df
         del clonotypes_df
         for i in range(0, len(clone)):
@@ -85,7 +83,8 @@ def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, tot
                 temp.write(k+","+str(clone_id)+"\n")	
         count = maior
         total_clust += cluster_pre_clone.labels_.max() + 1
-        return unico_pq_VJLen, total_clust, maior
+        return unico_pq_VJLen, total_clust, count
+
 
 
 def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx, vGene_indx, jGene_indx, junc_indx, short_output=False):
@@ -181,10 +180,9 @@ def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, seqID, 
     with alive_bar(len(clonotypes), title="Clonotyping") as bar: 
         for key in clonotypes: #each key is the combination of V gene, J gene and the length of cdr3, the values are the sequence ID and cdr3 sequence
             bar()
-            
             pre_clone = colapse_unique(clonotypes[key],colunas, sequence_column)
             if len(pre_clone) > 1:
-                unico_pq_VJLen, total_clust, maior = clonotype(pre_clone, clonotypes[key], seqID, sequence_column, unico_pq_VJLen, total_clust, count, temp, thr,ksize,metric)
+                unico_pq_VJLen, total_clust, count = clonotype(pre_clone, clonotypes[key], seqID, sequence_column, unico_pq_VJLen, total_clust, count, temp, thr,ksize,metric)
             else:
                 unico_pq_VJLen +=1
                 count += 1
