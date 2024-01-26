@@ -64,7 +64,8 @@ def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, tot
         clone = cluster_pre_clone.labels_
         maior = count + cluster_pre_clone.labels_.max() + 1
         junc_seq = junc_seq.reset_index(drop=True) 
-        clonotypes_df = pd.DataFrame(clonotypes)
+	key = list(pre_clone["v_call"].unique())[0].split("*")[0]+","+list(pre_clone["j_call"].unique())[0].split("*")[0]+","+len(list(pre_clone[sequence_column].unique())[0])
+        clonotypes_df = pd.DataFrame(clonotypes[key])
         clonotypes_df.columns = [seqID,sequence_column]
         tmp_df = pre_clone
         tmp_df.columns = ["tmp_seq",sequence_column]
