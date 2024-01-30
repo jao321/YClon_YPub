@@ -168,13 +168,15 @@ def organise_repertoires_from_folder(folder, seqID, separator):
 			for values in f:
 				if(values.find(seqID) != -1) and (header==False):
 					tmp = values.strip().split(separator)
+					prod_indx = tmp.index("productive")
 					for col_name in tmp:
 						ypub_input.write(col_name+"\t")
 					ypub_input.write("origin_repertoire\n")
 					header = True
 				elif(values.find(seqID) == -1) :
 					tmp = values.strip().split(separator)
-					for col_name in tmp:
-						ypub_input.write(col_name+"\t")
-					ypub_input.write(repertoire+"\n")
+					if tmp[prod_indx].find("T")!= -1:
+						for col_name in tmp:
+							ypub_input.write(col_name+"\t")
+						ypub_input.write(repertoire+"\n")
 
