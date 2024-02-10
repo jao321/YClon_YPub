@@ -25,7 +25,8 @@ def main():
 	ksize = 3
 	short_output = False
 	every_in_the_folder = False
-	public = False 
+	public = False
+	analysis = False
 
 
 	filename = ""
@@ -76,6 +77,9 @@ def main():
 			out_filename = os.path.join(path,sys.argv[x+1]+"_YPub_public_clones."+filename_temp[1])
 		elif sys.argv[x].find("--short_output") != -1:
 			short_output = True
+		elif sys.argv[x].find("--analysis") != -1:
+			analysis == True
+		
 		# elif sys.argv[x].find("--folder") != -1:
 		# 	every_in_the_folder = True
 		# 	filename = sys.argv[x+1]
@@ -87,17 +91,17 @@ def main():
 	out_filename = filename_temp[0]+"_YPub_public_clones."+filename_temp[1]
 	YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs,metric)
 	
-	
-	print("Analysing clones...")
-	public_clones = pd.read_csv(out_filename,sep="\t")
-	count_clones_in_more_than_one_rep = public_clones.origin_repertoire.groupby(public_clones['clone_id']).nunique()
-	print("Counting public clones...")
-	
-	public_clones = public_clones[public_clones['clone_id'].map(count_clones_in_more_than_one_rep)>1]
-	count_clones_in_more_than_one_rep=pd.DataFrame({"clone_id":count_clones_in_more_than_one_rep.index,
-													"publicity":count_clones_in_more_than_one_rep.values})
-	public_clones = pd.merge(public_clones,count_clones_in_more_than_one_rep)
-	
-	print("Saving file...")
-	public_clones.to_csv(out_filename,quoting=False,index=False,sep="\t")
+	if analysis ==True:
+		print("Analysing clones...")
+		public_clones = pd.read_csv(out_filename,sep="\t")
+		count_clones_in_more_than_one_rep = public_clones.origin_repertoire.groupby(public_clones['clone_id']).nunique()
+		print("Counting public clones...")
+		
+		public_clones = public_clones[public_clones['clone_id'].map(count_clones_in_more_than_one_rep)>1]
+		count_clones_in_more_than_one_rep=pd.DataFrame({"clone_id":count_clones_in_more_than_one_rep.index,
+														"publicity":count_clones_in_more_than_one_rep.values})
+		public_clones = pd.merge(public_clones,count_clones_in_more_than_one_rep)
+		
+		print("Saving file...")
+		public_clones.to_csv(out_filename,quoting=False,index=False,sep="\t")
 	os.remove(filename)
