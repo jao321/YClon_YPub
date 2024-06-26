@@ -108,7 +108,6 @@ def write_output(in_airr, seqID, out_filename,
                 else:
                     for i in range(0, len(data)):
                         out.write(data[i].strip()+separator)
-                    print('era pra escrever 1')
                     out.write(clonotipo[data[seq_id_indx]]+"\n")
                 if clonotipo[data[seq_id_indx]] not in most_common_cdr3:
                     most_common_cdr3[clonotipo[data[seq_id_indx]]] = []
