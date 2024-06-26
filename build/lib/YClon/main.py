@@ -87,9 +87,12 @@ def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, tot
 
 
 
-def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx, vGene_indx, jGene_indx, junc_indx, short_output=False):
+def write_output(in_airr, seqID, out_filename, 
+                 clonotipo, separator, seq_id_indx, vGene_indx, 
+                 jGene_indx, junc_indx, short_output=False):
     most_common_cdr3 = {}
     most_common_seq_id = {}
+    print(clonotipo)
     if short_output ==  True:
         out_small_name = out_filename.replace("_YClon_clonotyped.","_YClon_clonotyped_only_essential_columns.")
         out = open(out_small_name, 'w+')
@@ -106,6 +109,7 @@ def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx
                 else:
                     for i in range(0, len(data)):
                         out.write(data[i].strip()+separator)
+                    print('era pra escrever 1')
                     out.write(clonotipo[data[seq_id_indx]]+"\n")
                 if clonotipo[data[seq_id_indx]] not in most_common_cdr3:
                     most_common_cdr3[clonotipo[data[seq_id_indx]]] = []
@@ -116,11 +120,10 @@ def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx
                     most_common_cdr3[clonotipo[data[seq_id_indx]]].append(data[junc_indx].strip())
                     most_common_seq_id[clonotipo[data[seq_id_indx]]].append(data[seq_id_indx])
         else:
-            data = x.split(separator)
-            print(data)
+            data = x.strip().split(separator)
             seq_id_indx = data.index(seqID)
             if short_output == True:
-                out.write(seqID+separator+vcolumn+separator+jcolumn+separator+sequence_column+separator+"clone_id\n")
+                out.write(seqID+separator+data.index(vGene_indx)+separator+data.index(jGene_indx)+separator+data.index(junc_indx)+separator+"clone_id\n")
             else:
                 if x.find("clone_id") == -1:
                     out.write(x.strip()+separator+"clone_id\n")

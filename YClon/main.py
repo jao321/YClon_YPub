@@ -87,7 +87,9 @@ def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, tot
 
 
 
-def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx, vGene_indx, jGene_indx, junc_indx, short_output=False):
+def write_output(in_airr, seqID, out_filename, 
+                 clonotipo, separator, seq_id_indx, vGene_indx, 
+                 jGene_indx, junc_indx, short_output=False):
     most_common_cdr3 = {}
     most_common_seq_id = {}
     if short_output ==  True:
@@ -97,7 +99,7 @@ def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx
         out = open(out_filename, 'w+')
     for x in in_airr:
         if x.find(seqID) == -1:
-            data = x.split(separator)
+            data = x.strip().split(separator)
             if data[seq_id_indx] in clonotipo:
                 if short_output == True:
                     if data[seq_id_indx] in clonotipo:
@@ -106,6 +108,7 @@ def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx
                 else:
                     for i in range(0, len(data)):
                         out.write(data[i].strip()+separator)
+                    print('era pra escrever 1')
                     out.write(clonotipo[data[seq_id_indx]]+"\n")
                 if clonotipo[data[seq_id_indx]] not in most_common_cdr3:
                     most_common_cdr3[clonotipo[data[seq_id_indx]]] = []
@@ -119,7 +122,7 @@ def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx
             data = x.strip().split(separator)
             seq_id_indx = data.index(seqID)
             if short_output == True:
-                out.write(seqID+separator+vcolumn+separator+jcolumn+separator+sequence_column+separator+"clone_id\n")
+                out.write(seqID+separator+data.index(vGene_indx)+separator+data.index(jGene_indx)+separator+data.index(junc_indx)+separator+"clone_id\n")
             else:
                 if x.find("clone_id") == -1:
                     out.write(x.strip()+separator+"clone_id\n")
