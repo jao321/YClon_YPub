@@ -1,0 +1,3 @@
+[console_scripts]
+YClon = YClon.YClon:main
+YPub = YClon.YPub:main

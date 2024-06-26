@@ -1,0 +1,7 @@
+alive_progress
+joblib
+scipy
+pandas
+numpy
+scikit-learn
+rich

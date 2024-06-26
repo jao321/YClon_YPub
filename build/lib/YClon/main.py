@@ -116,7 +116,8 @@ def write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx
                     most_common_cdr3[clonotipo[data[seq_id_indx]]].append(data[junc_indx].strip())
                     most_common_seq_id[clonotipo[data[seq_id_indx]]].append(data[seq_id_indx])
         else:
-            data = x.strip().split(separator)
+            data = x.split(separator)
+            print(data)
             seq_id_indx = data.index(seqID)
             if short_output == True:
                 out.write(seqID+separator+vcolumn+separator+jcolumn+separator+sequence_column+separator+"clone_id\n")
