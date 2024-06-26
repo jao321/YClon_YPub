@@ -92,7 +92,6 @@ def write_output(in_airr, seqID, out_filename,
                  jGene_indx, junc_indx, short_output=False):
     most_common_cdr3 = {}
     most_common_seq_id = {}
-    print(clonotipo)
     if short_output ==  True:
         out_small_name = out_filename.replace("_YClon_clonotyped.","_YClon_clonotyped_only_essential_columns.")
         out = open(out_small_name, 'w+')
@@ -100,7 +99,7 @@ def write_output(in_airr, seqID, out_filename,
         out = open(out_filename, 'w+')
     for x in in_airr:
         if x.find(seqID) == -1:
-            data = x.split(separator)
+            data = x.strip().split(separator)
             if data[seq_id_indx] in clonotipo:
                 if short_output == True:
                     if data[seq_id_indx] in clonotipo:
@@ -109,7 +108,6 @@ def write_output(in_airr, seqID, out_filename,
                 else:
                     for i in range(0, len(data)):
                         out.write(data[i].strip()+separator)
-                    print('era pra escrever 1')
                     out.write(clonotipo[data[seq_id_indx]]+"\n")
                 if clonotipo[data[seq_id_indx]] not in most_common_cdr3:
                     most_common_cdr3[clonotipo[data[seq_id_indx]]] = []
