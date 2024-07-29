@@ -27,9 +27,23 @@ To execute YClon, you can open a terminal window and run:
 
 ---
 # YPub
-To execute YPub , you can open a terminal window and run:
 
-              YPub --folder path/to/folder_with_repertoires_file
+## YPub Overview
+
+YPub uses the YClon method to identify public or convergent clones between two or more samples. It does this by grouping sequences that share the same V and J annotation, CDR3 length, and 90% identity in their CDR3 sequences.
+
+## Output File
+
+The result is a file named `ypub_input_YClon_clonotyped.tsv`. This file has the same columns as YClon, plus an additional column called `origin_repertoire` which indicates the original file of each sequence.
+
+## How to Run YPub
+
+1. Open a terminal window.
+2. Run the following command, replacing `path/to/folder_with_repertoires_file` with the path to your folder:
+
+   ```bash
+   YPub --folder path/to/folder_with_repertoires_file
+
 
 ---
 # Arguments
