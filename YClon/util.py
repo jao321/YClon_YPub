@@ -6,7 +6,6 @@ Functions and variables that will be used to auxiliate YClon processes
 import os
 
 
-
 def directory_path(file_path):
 	temp =	file_path.split(os.sep)
 	file_path = file_path.replace(temp[len(temp)-1],"")
@@ -100,10 +99,8 @@ def get_columns_index(seqID,sequence_column,vcolumn,jcolumn,head,all_cdrs):
 		return seq_id_indx, junc_indx, vGene_indx, jGene_indx
 
 
-def parse_AIRR(filename, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = False, separator = "\t"):
-	f = open(filename, 'r')
-	x = f.readline().strip()
-	head = x.split(separator)
+def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = False, separator = "\t"):
+	head = head.split(separator)
 	number_of_columns = len(head)
 
 	if all_cdrs == True:
@@ -138,11 +135,11 @@ def parse_AIRR(filename, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = Fa
 			if jGene != "" and vGene != "" and cdr3len != 0:
 				if all_cdrs == True:
 					if cdr1len != 0 and cdr2len != 0:
-						key = vGene[0]+","+jGene[0]+","+cdr3len+","+cdr1len+","+cdr2len
+						key = vGene[0]+"."+jGene[0]+"."+cdr3len+"."+cdr1len+"."+cdr2len
 					else:
 						fail+=1
 						continue 
-				key = vGene[0]+","+jGene[0]+","+cdr3len
+				key = vGene[0]+"."+jGene[0]+"."+cdr3len
 			else:
 				fail +=1
 				continue
@@ -153,7 +150,8 @@ def parse_AIRR(filename, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = Fa
 			fail +=1
 			continue
 		
-	f.close()
+	if type(f)!=list:
+		f.close()
 	return clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, file_size, fail
 
 

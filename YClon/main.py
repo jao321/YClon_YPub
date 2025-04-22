@@ -7,24 +7,17 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 from sklearn.cluster import AgglomerativeClustering
 from scipy.spatial import distance
-from multiprocessing import Pool
+# from multiprocessing import Pool
 from YClon.util import parse_AIRR, directory_path
+import multiprocessing
+from functools import partial
+import itertools
+import tarfile
 
 
 def calculate_hamming_distance(i, j):
     return distance.hamming(i, j)
 
-def distance_matrix_hamming(input_pair, n_jobs=None):
-    pool = Pool(processes=n_jobs)
-    results = pool.starmap(calculate_hamming_distance, [(input_pair[i], input_pair[j]) for i in range(len(input_pair)) for j in range(len(input_pair))])
-    distance_matrix = np.zeros((len(input_pair), len(input_pair)))
-    ct=0
-    for i in range(len(input_pair)):
-        for j in range(len(input_pair)):
-            distance_matrix[i, j] = results[ct]
-            ct+=1
-        return distance_matrix
-    
 def build_kmers_tf_idf(sequence, ksize=3): 
     ''' 
         Gets a sequence and returns a list with
@@ -44,9 +37,8 @@ def colapse_unique(clonotypes_value, colunas,sequence_column):
 def most_common(lst):
     return max(set(lst), key=lst.count)
 
-def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, total_clust, count, temp, thr=0.09, ksize=3, metric="hamming"):
-        seq_id = pre_clone[seqID]
-
+def clonotype(pre_clone, clonotypes, key, seqID, sequence_column,  
+              thr=0.09, ksize=3, metric="hamming",seq_clone_id=[]):
         junc_seq = pre_clone[sequence_column]
         if metric == "kmer":
             clusterer = AgglomerativeClustering(distance_threshold = thr, n_clusters= None, metric="precomputed",linkage='complete')
@@ -54,15 +46,13 @@ def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, tot
             tf_idf_matrix = vectorizer.fit_transform(junc_seq)	
             dist = 1 - cosine_similarity(tf_idf_matrix)
         elif metric == "hamming":
-            # input_pair = [list(x.lower()) for x in junc_seq]
             input_pair = [list(map(int,list(x.lower().replace("a","0").replace("c","1").replace("t","2").replace("g","3").replace("n","4")))) for x in junc_seq]
             clusterer = AgglomerativeClustering(distance_threshold = thr, n_clusters= None,metric="precomputed",linkage='complete')
-            # dist = distance_matrix_hamming(input_pair, n_jobs=None)
-            dist = pairwise_distances(input_pair,metric="hamming",n_jobs=-1)
+            dist = pairwise_distances(input_pair,metric="hamming")
             
         cluster_pre_clone = clusterer.fit(dist)
         clone = cluster_pre_clone.labels_
-        maior = count + cluster_pre_clone.labels_.max() + 1
+
         junc_seq = junc_seq.reset_index(drop=True)
         clonotypes_df = pd.DataFrame(clonotypes)
         clonotypes_df.columns = [seqID,sequence_column]
@@ -72,18 +62,15 @@ def clonotype(pre_clone, clonotypes, seqID, sequence_column, unico_pq_VJLen, tot
         del clonotypes_df
         for i in range(0, len(clone)):
             if clone[i] != -1:
-                clone_id = count + int(clone[i]) +1
+                clone_id = key+'_'+str(int(clone[i])+1)
             else:
-                clone_id = maior + 1
-                maior += 1
-                total_clust += 1
+                clone_id =clone_id = key+'_'+str(int(clone[i]))
 
-            all_again = pre_clone.loc[pre_clone[sequence_column] == junc_seq[i]][seqID]
+            all_again = pre_clone.loc[pre_clone[sequence_column] == junc_seq[i]][seqID].unique()
+            # print(all_again)
             for k in all_again:
-                temp.write(k+","+str(clone_id)+"\n")	
-        count = maior
-        total_clust += cluster_pre_clone.labels_.max() + 1
-        return unico_pq_VJLen, total_clust, count
+                seq_clone_id.append(k+","+str(clone_id))	
+        return seq_clone_id
 
 
 
@@ -145,7 +132,6 @@ def add_seq_count(path,seqID,clonotyped,maior,separator,out_filename):
             else:
                 i = x.strip().split(separator).index("clone_id")
         else:
-            # print(x.strip().split(separator)[i])
             temp.write(x.strip()+separator+str(len(maior[x.strip().split(separator)[i]]))+"\n")
     temp.close()
     out.close()
@@ -161,46 +147,64 @@ def write_report(most_common_cdr3,most_common_seq_id,maior,out_filename):
     out_report = open(out_report_name, 'w+')
     out_report.write("sequence_id\tseq_count\tmost_common_cdr3\tclone_id\n")
     for i in most_common_cdr3:
-	  # print(i)
         cdr3 = most_common(most_common_cdr3[i])
-	  # print(most_common_seq_id[i])
         out_report.write(most_common_seq_id[i][most_common_cdr3[i].index(cdr3)]+"\t"+str(len(maior[i]))+"\t"+cdr3+"\t"+i+"\n")
 
+def process_key(key, clonotypes, colunas, sequence_column, seqID, thr, ksize, metric):
+    seq_clone_id = []
+    pre_clone = colapse_unique(clonotypes[key], colunas, sequence_column)
+    
+    if len(pre_clone) > 1:
+        seq_clone_id = clonotype(pre_clone, clonotypes[key], key, seqID, sequence_column, thr, ksize, metric)
+    else:
+        pre_clone = pd.DataFrame(clonotypes[key])
+        pre_clone.columns = colunas
+        seq_id = pre_clone[seqID]
+        for i in range(0, len(clonotypes[key])):
+            seq_clone_id=[str(seq_id[i])+","+key+"_1"]
+    return seq_clone_id
 
 def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs,metric): 
     start_time = time.time()
-    clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, file_size, fail = parse_AIRR(filename, seqID, sequence_column, vcolumn, jcolumn, all_cdrs, separator)
+    print("Opening and reading "+filename)
+    if tarfile.is_tarfile(filename):
+        with tarfile.open(filename) as tar:
+            binary = tar.extractfile(filename.replace('.tar.gz',''))
+            f = binary.read().decode('utf-8').split('\n')
+            head = f[0]
+            f = f[1:]
+    else: 
+        f = open(filename, 'r')
+        head = f.readline().strip()
+    in_airr = open(filename, 'r')
+    clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, file_size, fail = parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, all_cdrs, separator)
     path = directory_path(filename)
     temp_filename = path+"YClon_temp.txt"
+    print('creating temporary file...')
     temp = open(temp_filename, 'w')
-    count = 0
-    total_clust = 0
-    unico_pq_VJLen = 0
-    maior = 0
-    a = 0
+    
+    worker = partial(process_key, 
+                clonotypes=clonotypes,
+                colunas=colunas,
+                sequence_column=sequence_column,
+                seqID=seqID,
+                thr=thr,
+                ksize=ksize,
+                metric=metric)
+    
+    num_processes = multiprocessing.cpu_count()
+    with multiprocessing.Pool(processes=num_processes) as pool:
+        results = pool.map(worker, clonotypes.keys())
+    
+    # Combine results
+    results = (itertools.chain.from_iterable(results))
+    print('Assigning clonotypes...')
+    for x in results:
+        temp.write(x+'\n')
 
-    with alive_bar(len(clonotypes), title="Clonotyping") as bar: 
-        for key in clonotypes: #each key is the combination of V gene, J gene and the length of cdr3, the values are the sequence ID and cdr3 sequence
-            bar()
-            pre_clone = colapse_unique(clonotypes[key],colunas, sequence_column)
-            if len(pre_clone) > 1:
-                unico_pq_VJLen, total_clust, count = clonotype(pre_clone, clonotypes[key], seqID, sequence_column, unico_pq_VJLen, total_clust, count, temp, thr,ksize,metric)
-            else:
-                unico_pq_VJLen +=1
-                count += 1
-                total_clust += 1
-                pre_clone = pd.DataFrame(clonotypes[key])
-                pre_clone.columns = colunas
-                seq_id = pre_clone[seqID]
-                for i in range(0, len(clonotypes[key])):
-                    temp.write(str(seq_id[i])+","+str(count)+"\n")
-
-    pre_clone = []
 
     temp.close()
     in_temp = open(temp_filename, 'r')
-    in_airr = open(filename, 'r')
-    filename_temp = filename.split(".")
     out = open(out_filename, 'w+')
 
     clonotipo = {}
@@ -218,12 +222,17 @@ def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, seqID, 
             maior[data[-1]].append(','.join(data[0:-1]))
 
     seq_list = []
-
+    if tarfile.is_tarfile(filename):
+        with tarfile.open(filename) as tar:
+            binary = tar.extractfile(filename.replace('.tar.gz',''))
+            in_airr = binary.read().decode('utf-8').split('\n')
+    else: 
+        in_airr = open(filename, 'r')
     most_common_seq_id, most_common_cdr3, clonotyped = write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx, vGene_indx, jGene_indx, junc_indx, short_output)
 
     out.close()
     in_temp.close()
-    os.remove(temp_filename)
+    # os.remove(temp_filename)
 
     add_seq_count(path, seqID, clonotyped, maior,separator,out_filename)
 
