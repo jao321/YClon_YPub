@@ -161,20 +161,32 @@ def organise_repertoires_from_folder(folder, seqID, separator):
 	header=False
 	print("Organising input files")
 	for repertoire in rep_list:
-		print(repertoire)
 		with open(os.path.join(folder,repertoire)) as f:
+			print(os.path.join(folder,repertoire))
 			for values in f:
 				if(values.find(seqID) != -1) and (header==False):
 					tmp = values.strip().split(separator)
-					prod_indx = tmp.index("productive")
+					# try:
+					# 	prod_indx = tmp.index("productive")
+					# except:
+					# 	prod_indx==False
+					# 	continue
+					# print(prod_indx)
 					for col_name in tmp:
 						ypub_input.write(col_name+"\t")
 					ypub_input.write("origin_repertoire\n")
 					header = True
 				elif(values.find(seqID) == -1) :
 					tmp = values.strip().split(separator)
-					if tmp[prod_indx].find("T")!= -1:
-						for col_name in tmp:
+					for col_name in tmp:
 							ypub_input.write(col_name+"\t")
-						ypub_input.write(repertoire+"\n")
+					ypub_input.write(repertoire+"\n")
+					# if prod_indx!=False:
+					# 	for col_name in tmp:
+					# 		ypub_input.write(col_name+"\t")
+					# 	ypub_input.write(repertoire+"\n")
+					# elif tmp[prod_indx].find("T")!= -1:
+					# 	for col_name in tmp:
+					# 		ypub_input.write(col_name+"\t")
+					# 	ypub_input.write(repertoire+"\n")
 
