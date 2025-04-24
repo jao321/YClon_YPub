@@ -27,6 +27,7 @@ def main():
 	every_in_the_folder = False
 	public = False
 	analysis = False
+	format='airr'
 
 
 	filename = ""
@@ -68,6 +69,9 @@ def main():
 			seqID = sys.argv[x+1]
 		elif sys.argv[x].find("--sep") != -1:
 			separator = sys.argv[x+1]
+		elif sys.argv[x].find("--format") != -1:
+			format = sys.argv[x+1]
+			separator=','
 		elif sys.argv[x].find("--kmer_length") != -1:
 			ksize = int(sys.argv[x+1])
 		elif sys.argv[x].find("--dir_out") != -1:
@@ -84,7 +88,7 @@ def main():
 		# 	every_in_the_folder = True
 		# 	filename = sys.argv[x+1]
 
-	organise_repertoires_from_folder(folder, seqID, separator)
+	organise_repertoires_from_folder(folder, seqID, separator, format)
 	filename = os.path.join(folder,"ypub_input.tsv")
 	print(filename)
 	filename_temp = filename.split(".")

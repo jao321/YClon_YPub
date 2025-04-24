@@ -27,6 +27,7 @@ def main():
 	every_in_the_folder = False
 	public = False
 	analysis = False
+	format='airr'
 
 
 	filename = ""
@@ -68,6 +69,9 @@ def main():
 			seqID = sys.argv[x+1]
 		elif sys.argv[x].find("--sep") != -1:
 			separator = sys.argv[x+1]
+		elif sys.argv[x].find("--format") != -1:
+			format = sys.argv[x+1]
+			separator=','
 		elif sys.argv[x].find("--kmer_length") != -1:
 			ksize = int(sys.argv[x+1])
 		elif sys.argv[x].find("--dir_out") != -1:
@@ -84,24 +88,24 @@ def main():
 		# 	every_in_the_folder = True
 		# 	filename = sys.argv[x+1]
 
-	organise_repertoires_from_folder(folder, seqID, separator)
+	organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, seqID, separator, all_cdrs, format)
 	filename = os.path.join(folder,"ypub_input.tsv")
-	print(filename)
+	print(filename, flush=True)
 	filename_temp = filename.split(".")
 	out_filename = filename_temp[0]+"_YPub_public_clones."+filename_temp[1]
 	YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs,metric)
 	
 	if analysis ==True:
-		print("Analysing clones...")
+		print("Analysing clones...", flush=True)
 		public_clones = pd.read_csv(out_filename,sep="\t")
 		count_clones_in_more_than_one_rep = public_clones.origin_repertoire.groupby(public_clones['clone_id']).nunique()
-		print("Counting public clones...")
+		print("Counting public clones...", flush=True)
 		
 		public_clones = public_clones[public_clones['clone_id'].map(count_clones_in_more_than_one_rep)>1]
 		count_clones_in_more_than_one_rep=pd.DataFrame({"clone_id":count_clones_in_more_than_one_rep.index,
 														"publicity":count_clones_in_more_than_one_rep.values})
 		public_clones = pd.merge(public_clones,count_clones_in_more_than_one_rep)
 		
-		print("Saving file...")
+		print("Saving file...", flush=True)
 		public_clones.to_csv(out_filename,quoting=False,index=False,sep="\t")
 	os.remove(filename)

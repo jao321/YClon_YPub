@@ -4,7 +4,7 @@ Functions and variables that will be used to auxiliate YClon processes
 
 
 import os
-
+import gzip
 
 
 def directory_path(file_path):
@@ -160,26 +160,31 @@ def parse_AIRR(filename, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = Fa
 	return clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, file_size, fail
 
 
-def organise_repertoires_from_folder(folder, seqID, separator):
+def organise_repertoires_from_folder(folder, seqID, separator, format):
 	rep_list = os.listdir(folder)
 	ypub_input = open(os.path.join(folder,"ypub_input.tsv"), "w")
 	header=False
 	print("Organising input files")
 	for repertoire in rep_list:
 		print(repertoire)
-		with open(os.path.join(folder,repertoire)) as f:
-			for values in f:
-				if(values.find(seqID) != -1) and (header==False):
-					tmp = values.strip().split(separator)
-					prod_indx = tmp.index("productive")
+		if format=='OAS':
+			f = gzip.open(os.path.join(folder,repertoire),'rt')
+			print(f.readline())
+			exit()
+		else:
+			f = open(os.path.join(folder,repertoire))
+		for values in f:
+			if(values.find(seqID) != -1) and (header==False):
+				tmp = values.strip().split(separator)
+				prod_indx = tmp.index("productive")
+				for col_name in tmp:
+					ypub_input.write(col_name+"\t")
+				ypub_input.write("origin_repertoire\n")
+				header = True
+			elif(values.find(seqID) == -1) :
+				tmp = values.strip().split(separator)
+				if tmp[prod_indx].find("T")!= -1:
 					for col_name in tmp:
 						ypub_input.write(col_name+"\t")
-					ypub_input.write("origin_repertoire\n")
-					header = True
-				elif(values.find(seqID) == -1) :
-					tmp = values.strip().split(separator)
-					if tmp[prod_indx].find("T")!= -1:
-						for col_name in tmp:
-							ypub_input.write(col_name+"\t")
-						ypub_input.write(repertoire+"\n")
+					ypub_input.write(repertoire+"\n")
 

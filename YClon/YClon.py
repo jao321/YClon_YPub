@@ -77,7 +77,7 @@ def main():
 	else:
 		filename = sys.argv[sys.argv.index("--input")+1]
 
-	print(filename)
+	print(filename, flush=True)
 
 	filename_temp = filename.split(".")
 
