@@ -1,6 +1,6 @@
 # YClon
 
-![alt text](https://raw.githubusercontent.com/jao321/YClon/main/yclon_logo.png)
+<img src="https://raw.githubusercontent.com/jao321/YClon/main/yclon_logo.png" alt="alt text" width="350" height="200" />
 
 YClon is a fast computational method for grouping B cell receptor (BCR) clones, which requires the user to provide a BCR annotated repertoire in the Minimal Information Adaptive Immune Receptor Repertoire (MiAIRR) format. This tool is particularly useful for analyzing antibody repertoires that contain a large number of sequences, such as those with more than 1,000,000 sequences, and for analyzing multiple repertoires simultaneously.
 
