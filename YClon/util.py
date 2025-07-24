@@ -150,9 +150,9 @@ def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = Fals
 			continue
 	key_with_largest_list = max(clonotypes, key=lambda k: len(clonotypes[k]))
 	length_of_largest_list = len(clonotypes[key_with_largest_list])
-
-	print("There are "+str(len(clonotypes))+" unique combinations of VJ+cdr lengths", flush=True)
-	print(f"The largest is {key_with_largest_list}  with {length_of_largest_list} sequences", flush=True)
+	# if verbose:
+	# 	print("There are "+str(len(clonotypes))+" unique combinations of VJ+cdr lengths", flush=True)
+	# 	print(f"The largest is {key_with_largest_list}  with {length_of_largest_list} sequences", flush=True)
 	if type(f)!=list:
 		f.close()
 	return clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail

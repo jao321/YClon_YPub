@@ -26,6 +26,7 @@ def main():
 	short_output = False
 	every_in_the_folder = False
 	public = False 
+	# verbose = False
 
 	if((("--version" in sys.argv) or ("-v" in sys.argv))):
 		print(version)
@@ -86,6 +87,8 @@ def main():
 			filename = sys.argv[x+1]
 		elif sys.argv[x].find("--method") != -1: 
 			method = sys.argv[x+1]
+		# elif sys.argv[x].find("--verbose") != -1: 
+		# 	verbose = True
 		elif sys.argv[x].find("--metric") != -1: 
 			metric = sys.argv[x+1]
 		elif sys.argv[x].find("--thr") != -1:
@@ -120,7 +123,7 @@ def main():
 	if every_in_the_folder == False:
 		filename_temp = filename.split(".")
 		out_filename = filename_temp[0]+"_YClon_clonotyped."+filename_temp[1]
-		YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs,metric)
+		YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs, metric)
 	# 	# clonotyping(filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, short_output,clonotyped)
 	# else:
 	# 	files = os.listdir(path)

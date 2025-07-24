@@ -9,7 +9,7 @@ from rich.markdown import Markdown
 
 
 def main():
-	version = "0.1 - Dec 4th 2023"
+	version = "1.0 - Jul 24th 2025"
 	clonotyped = False
 	method = "AHAM"
 	thr = 0.09
@@ -27,6 +27,7 @@ def main():
 	every_in_the_folder = False
 	public = False
 	analysis = False
+	# verbose = False
 	format='airr'
 
 
@@ -55,6 +56,8 @@ def main():
 			filename = sys.argv[x+1]
 		elif sys.argv[x].find("--method") != -1: 
 			method = sys.argv[x+1]
+		# elif sys.argv[x].find("--verbose") != -1: 
+		# 	verbose = True
 		elif sys.argv[x].find("--metric") != -1: 
 			metric = sys.argv[x+1]
 		elif sys.argv[x].find("--thr") != -1:

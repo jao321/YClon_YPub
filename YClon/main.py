@@ -40,8 +40,9 @@ def most_common(lst):
 
 def clonotype(pre_clone, clonotypes_vjcdr, key, seqID, sequence_column,  
               thr=0.09, ksize=3, metric="hamming",seq_clone_id=[]):
-        starting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-        print(f"[{starting_time}] clustering {key} {len(pre_clone)} unique junction sequences", flush=True)
+        # if verbose:
+        #     starting_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        #     print(f"[{starting_time}] clustering {key} {len(pre_clone)} unique junction sequences", flush=True)
         junc_seq = pre_clone[sequence_column]
         if metric == "kmer":
             clusterer = AgglomerativeClustering(distance_threshold = thr, n_clusters= None, metric="precomputed",linkage='single')
