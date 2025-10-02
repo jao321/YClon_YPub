@@ -105,6 +105,8 @@ def main():
 			separator = sys.argv[x+1]
 		elif sys.argv[x].find("--kmer_length") != -1:
 			ksize = int(sys.argv[x+1])
+		elif sys.argv[x].find("--all_cdrs") != -1:
+			all_cdrs = True
 		elif sys.argv[x].find("--dir_out") != -1:
 			path = sys.argv[x+1]
 			out_filename = os.path.join(path,os.path.basename(out_filename))
