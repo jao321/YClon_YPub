@@ -125,7 +125,7 @@ def main():
 	if every_in_the_folder == False:
 		filename_temp = filename.split(".")
 		out_filename = filename_temp[0]+"_YClon_clonotyped."+filename_temp[1]
-		YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs, metric)
+		YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, short_output, all_cdrs, metric)
 	# 	# clonotyping(filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, short_output,clonotyped)
 	# else:
 	# 	files = os.listdir(path)

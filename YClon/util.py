@@ -58,7 +58,7 @@ def shannon_di(data):
 
 
 
-def get_columns_index(seqID,sequence_column,vcolumn,jcolumn,head,all_cdrs):
+def get_columns_index(seqID,sequence_column,vcolumn,jcolumn,head,all_cdrs,cdr1,cdr2):
 	try:
 		seq_id_indx = head.index(seqID)
 	except:
@@ -95,19 +95,19 @@ def get_columns_index(seqID,sequence_column,vcolumn,jcolumn,head,all_cdrs):
 			print("\nWARNING\nThere is no column named "+cdr1+"\n", flush=True)
 			exit()
         
-		return seq_id_indx, junc_indx, vGene_indx, jGene_indx, cdr2_indx, cdr1_indx
+		return seq_id_indx, junc_indx, vGene_indx, jGene_indx, cdr1_indx, cdr2_indx
 	else:
 		return seq_id_indx, junc_indx, vGene_indx, jGene_indx
 
 
-def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = False, separator = "\t"):
+def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn,cdr1, cdr2, all_cdrs = False, separator = "\t"):
 	head = head.split(separator)
 	number_of_columns = len(head)
 
 	if all_cdrs == True:
-		seq_id_indx, junc_indx, vGene_indx, jGene_indx, cdr2_indx, cdr1_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs)
+		seq_id_indx, junc_indx, vGene_indx, jGene_indx, cdr1_indx, cdr2_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs,cdr1,cdr2)
 	else:
-		seq_id_indx, junc_indx, vGene_indx, jGene_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs)
+		seq_id_indx, junc_indx, vGene_indx, jGene_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs,cdr1,cdr2)
 	
 	colunas = [head[seq_id_indx],head[junc_indx]]
 
@@ -138,7 +138,8 @@ def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, all_cdrs = Fals
 					else:
 						fail+=1
 						continue 
-				key = vGene[0]+"."+jGene[0]+"."+cdr3len
+				else:
+					key = vGene[0]+"."+jGene[0]+"."+cdr3len
 			else:
 				fail +=1
 				continue

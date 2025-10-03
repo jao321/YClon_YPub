@@ -170,7 +170,7 @@ def process_key(key, clonotypes, colunas, sequence_column, seqID, thr, ksize, me
             seq_clone_id=[str(seq_id[i])+","+key+"_1"]
     return seq_clone_id
 
-def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs,metric): 
+def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, short_output, all_cdrs,metric): 
     start_time = time.time()
     print("Opening and reading "+filename, flush=True)
     if tarfile.is_tarfile(filename):
@@ -183,7 +183,7 @@ def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, seqID, 
         f = open(filename, 'r')
         head = f.readline().strip()
     in_airr = open(filename, 'r')
-    clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail = parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, all_cdrs, separator)
+    clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail = parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, cdr1,cdr2, all_cdrs, separator)
     path = directory_path(filename)
     temp_filename = path+"YClon_temp.txt"
 
