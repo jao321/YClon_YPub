@@ -36,6 +36,14 @@ def main():
 	out_filename = ""
 	out_report_name = ""
 	folder = ""
+	if((("--version" in sys.argv) or ("-v" in sys.argv))):
+		print(version)
+	if((("--help" in sys.argv) or ("-h" in sys.argv))):
+		console = Console()
+		with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs","YClon_help.md"), "r+") as help_file:
+			console.print(Markdown(help_file.read()))
+		sys.exit(0)	
+
 	if (any("--input" in i for i in sys.argv) == False) and (any("--folder" in i for i in sys.argv) == True):
 		folder = sys.argv[sys.argv.index("--folder")+1]
 	# if (any(".tsv" in i for i in sys.argv) == True) and (any("--input" in i for i in sys.argv) == False):
