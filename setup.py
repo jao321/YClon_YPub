@@ -25,10 +25,10 @@ setup(
     install_requires=[
         'alive_progress',
         'joblib',
-        'scipy>=1.10.1',
-        'pandas==1.5.3',
-        'numpy==1.23.5',
-        'scikit-learn==1.2.2',
+        'scipy>=1.11',
+        'pandas>=2.1',
+        'numpy>=1.26',
+        'scikit-learn>=1.3',
         'rich'
     ],
     entry_points={
