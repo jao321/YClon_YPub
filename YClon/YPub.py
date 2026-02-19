@@ -91,13 +91,13 @@ def main():
 		# 	every_in_the_folder = True
 		# 	filename = sys.argv[x+1]
 
-	organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, seqID, separator, all_cdrs, format)
+	organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, seqID, separator, all_cdrs, cdr1, cdr2, format)
 	filename = os.path.join(folder,"ypub_input.tsv")
 	print(filename, flush=True)
 	filename_temp = filename.split(".")
 	out_filename = filename_temp[0]+"_YPub_public_clones."+filename_temp[1]
-	YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, ksize, short_output, all_cdrs,metric)
-	
+	YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, short_output, all_cdrs,metric)
+
 	if analysis ==True:
 		print("Analysing clones...", flush=True)
 		public_clones = pd.read_csv(out_filename,sep="\t")

@@ -149,7 +149,7 @@ def write_report(most_common_cdr3,most_common_seq_id,maior,out_filename):
     if out_filename.find("_YClon_clonotyped")!= -1:
         out_report_name=out_filename.replace("_YClon_clonotyped.","_YClon_clonotyped_report.")
     else:
-        out_report_name=out_filename.replace(".tsv","report.tsv")
+        out_report_name=out_filename.replace(".tsv","_report.tsv")
     out_report = open(out_report_name, 'w+')
     out_report.write("sequence_id\tseq_count\tmost_common_cdr3\tclone_id\n")
     for i in most_common_cdr3:
@@ -162,6 +162,7 @@ def process_key(key, clonotypes, colunas, sequence_column, seqID, thr, ksize, me
     
     if len(pre_clone) > 1:
         seq_clone_id = clonotype(pre_clone, clonotypes[key], key, seqID, sequence_column, thr, ksize, metric)
+        
     else:
         pre_clone = pd.DataFrame(clonotypes[key])
         pre_clone.columns = colunas
@@ -176,12 +177,13 @@ def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cd
     if tarfile.is_tarfile(filename):
         with tarfile.open(filename) as tar:
             binary = tar.extractfile(filename.replace('.tar.gz',''))
-            f = binary.read().decode('utf-8').split('\n')
+            f = binary.read().decode('utf-8').strip().split('\n')
             head = f[0]
             f = f[1:]
     else: 
         f = open(filename, 'r')
         head = f.readline().strip()
+    
     in_airr = open(filename, 'r')
     clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail = parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, cdr1,cdr2, all_cdrs, separator)
     path = directory_path(filename)

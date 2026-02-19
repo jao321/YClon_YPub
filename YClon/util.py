@@ -116,7 +116,7 @@ def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn,cdr1, cdr2, all_
 	clonotypes = {}
 	print("Processing file", flush=True)
 	for x in f:
-		data = list(x.split(separator))
+		data = list(x.strip().split(separator))
 		if len(data)!= number_of_columns:
 			fail+=1
 			continue
@@ -134,12 +134,12 @@ def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn,cdr1, cdr2, all_
 			if jGene != "" and vGene != "" and cdr3len != 0:
 				if all_cdrs == True:
 					if cdr1len != 0 and cdr2len != 0:
-						key = vGene[0]+"."+jGene[0]+"."+cdr3len+"."+cdr1len+"."+cdr2len
+						key = vGene[0].strip()+"."+jGene[0].strip()+"."+cdr3len.strip()+"."+cdr1len.strip()+"."+cdr2len.strip()
 					else:
 						fail+=1
 						continue 
 				else:
-					key = vGene[0]+"."+jGene[0]+"."+cdr3len
+					key = vGene[0].strip()+"."+jGene[0].strip()+"."+cdr3len.strip()
 			else:
 				fail +=1
 				continue
@@ -159,7 +159,7 @@ def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn,cdr1, cdr2, all_
 	return clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail
 
 
-def organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, seqID, separator, all_cdrs, format):
+def organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, seqID, separator, all_cdrs, cdr1, cdr2, format):
 	rep_list = os.listdir(folder)
 	ypub_input = open(os.path.join(folder,"ypub_input.tsv"), "w")
 	header=False
@@ -179,10 +179,10 @@ def organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, 
 				# for col_name in tmp:
 				if format=='OAS':
 					head.append('sequence_id')
-					seq_id_indx, junc_indx, vGene_indx, jGene_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs)
+					seq_id_indx, junc_indx, vGene_indx, jGene_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs,cdr1,cdr2)
 					ypub_input.write('sequence_id'+separator+head[junc_indx]+separator+head[vGene_indx]+separator+head[jGene_indx]+separator)
 				else:
-					seq_id_indx, junc_indx, vGene_indx, jGene_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs)
+					seq_id_indx, junc_indx, vGene_indx, jGene_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs,cdr1,cdr2)
 					ypub_input.write(head[seq_id_indx]+separator+head[junc_indx]+separator+head[vGene_indx]+separator+head[jGene_indx]+separator)
 				ypub_input.write("origin_repertoire\n")
 				header = True
@@ -193,7 +193,12 @@ def organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, 
 					ypub_input.write(repertoire+'_'+str(seq_counter_OAS)+separator+tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+separator)
 					seq_counter_OAS+=1
 				else:
-					ypub_input.write(tmp[seq_id_indx]+separator+tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+separator)
+					try:
+						ypub_input.write(tmp[seq_id_indx]+separator+tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+separator)
+						print(tmp[seq_id_indx]+separator+tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+separator)
+					except:
+						continue
+				
 				# for col_name in tmp:
 				# 	ypub_input.write(col_name+separator)
 				ypub_input.write(repertoire+"\n")
