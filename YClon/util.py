@@ -101,7 +101,7 @@ def get_columns_index(seqID,sequence_column,vcolumn,jcolumn,head,all_cdrs,cdr1,c
 
 
 def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn,cdr1, cdr2, all_cdrs = False, separator = "\t"):
-	head = head.strip().split(separator)
+	head = head.split(separator)
 	number_of_columns = len(head)
 
 	if all_cdrs == True:
