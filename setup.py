@@ -14,7 +14,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 setup(
     name='YClon',
-    version='2.0.2',
+    version='2.0.3',
     description='Set scripts to cluster AIRR repertoire into clonotypes',
     maintainer=['Jay Gervasio'],
     long_description=long_description,
@@ -23,13 +23,11 @@ setup(
     include_package_data=True,
     packages=find_packages(),
     install_requires=[
-        'alive_progress',
-        'joblib',
-        'scipy==1.10.1',
-        'pandas==1.5.3',
-        'numpy==1.23.5',
-        'scikit-learn==1.2.2',
-        'rich'
+        'scipy==1.13.1',
+        'pandas==2.2.2',
+        'numpy==1.26.4',
+        'scikit-learn==1.4.2',
+        'rich',
     ],
     entry_points={
       'console_scripts': [

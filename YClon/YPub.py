@@ -9,7 +9,7 @@ from rich.markdown import Markdown
 
 
 def main():
-	version = "1.0 - Jul 24th 2025"
+	version = "1.1 - Apr 27th 2026"
 	clonotyped = False
 	method = "AHAM"
 	thr = 0.09
@@ -27,6 +27,7 @@ def main():
 	every_in_the_folder = False
 	public = False
 	analysis = False
+	report = False
 	# verbose = False
 	format='airr'
 
@@ -74,7 +75,8 @@ def main():
 			separator = sys.argv[x+1]
 		elif sys.argv[x].find("--format") != -1:
 			format = sys.argv[x+1]
-			separator=','
+			if format == 'OAS':
+				separator=','
 		elif sys.argv[x].find("--kmer_length") != -1:
 			ksize = int(sys.argv[x+1])
 		elif sys.argv[x].find("--dir_out") != -1:
@@ -86,6 +88,8 @@ def main():
 			short_output = True
 		elif sys.argv[x].find("--analysis") != -1:
 			analysis == True
+		elif sys.argv[x].find("--report") != -1:
+			report == True
 		
 		# elif sys.argv[x].find("--folder") != -1:
 		# 	every_in_the_folder = True
@@ -96,7 +100,9 @@ def main():
 	print(filename, flush=True)
 	filename_temp = filename.split(".")
 	out_filename = filename_temp[0]+"_YPub_public_clones."+filename_temp[1]
-	YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, short_output, all_cdrs,metric)
+	YClon(out_filename,filename, thr, sequence_column,
+	   	vcolumn, jcolumn, cdr1,cdr2, seqID, 
+		separator, ksize, short_output, all_cdrs,metric,report)
 
 	if analysis ==True:
 		print("Analysing clones...", flush=True)

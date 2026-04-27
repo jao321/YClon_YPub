@@ -26,6 +26,7 @@ def main():
 	short_output = False
 	every_in_the_folder = False
 	public = False 
+	report = False
 	# verbose = False
 
 	if((("--version" in sys.argv) or ("-v" in sys.argv))):
@@ -117,15 +118,26 @@ def main():
 		elif sys.argv[x].find("--folder") != -1:
 			every_in_the_folder = True
 			filename = sys.argv[x+1]
+		elif sys.argv[x].find("--report") != -1:
+			report == True
+		elif sys.argv[x].find("--format") != -1:
+			format = sys.argv[x+1]
+			if format == 'OAS':
+				separator=','
 
 
 	
 	path = directory_path(filename)
 
 	if every_in_the_folder == False:
+		if format == 'OAS':
+			filename = format_OAS(filename, sequence_column, vcolumn, jcolumn,
+						  seqID, separator, all_cdrs, cdr1, cdr2, format)
 		filename_temp = filename.split(".")
 		out_filename = filename_temp[0]+"_YClon_clonotyped."+filename_temp[1]
-		YClon(out_filename, filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, short_output, all_cdrs, metric)
+		YClon(out_filename, filename, thr, sequence_column, 
+		vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, 
+		short_output, all_cdrs, metric, report)
 	# 	# clonotyping(filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, short_output,clonotyped)
 	# else:
 	# 	files = os.listdir(path)

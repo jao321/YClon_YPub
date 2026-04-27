@@ -2,7 +2,6 @@ import os
 import time
 import numpy as np
 import pandas as pd
-from alive_progress import alive_bar
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity, pairwise_distances
 from sklearn.cluster import AgglomerativeClustering
@@ -126,8 +125,8 @@ def write_output(in_airr, seqID, out_filename,
 
 
 
-def add_seq_count(path,seqID,clonotyped,maior,separator,out_filename):
-    temp_filename = path+"YClon_temp.txt"
+def add_seq_count(temp_filename,seqID,clonotyped,maior,separator,out_filename):
+    # temp_filename = path+"YClon_temp.txt"
     temp = open(temp_filename, 'w')
     out = open(out_filename, 'r')
     for x in out:
@@ -171,7 +170,9 @@ def process_key(key, clonotypes, colunas, sequence_column, seqID, thr, ksize, me
             seq_clone_id=[str(seq_id[i])+","+key+"_1"]
     return seq_clone_id
 
-def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, short_output, all_cdrs,metric): 
+def YClon(out_filename,filename, thr, sequence_column, 
+          vcolumn, jcolumn, cdr1,cdr2, seqID, separator, 
+          ksize, short_output, all_cdrs,metric, report): 
     start_time = time.time()
     print("Opening and reading "+filename, flush=True)
     if tarfile.is_tarfile(filename):
@@ -186,31 +187,13 @@ def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cd
     
     in_airr = open(filename, 'r')
     clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail = parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, cdr1,cdr2, all_cdrs, separator)
-    path = directory_path(filename)
-    temp_filename = path+"YClon_temp.txt"
-
-    
-    # worker = partial(process_key, 
-    #             clonotypes=clonotypes,
-    #             colunas=colunas,
-    #             sequence_column=sequence_column,
-    #             seqID=seqID,
-    #             thr=thr,
-    #             ksize=ksize,
-    #             metric=metric)
-    
-    # num_processes = multiprocessing.cpu_count()
-    # with multiprocessing.Pool(processes=num_processes) as pool:
-    #     results = pool.map(worker, clonotypes.keys())
-    
-    # # Combine results
-    # results = (itertools.chain.from_iterable(results))
-    # results = []
+    path, base_name = directory_path(filename)
+    temp_filename = path+base_name+"_YClon_temp.txt"
+    print(temp_filename)
     print('creating temporary file...', flush=True)
     temp = open(temp_filename, 'w')
-    count = 0
+
     for key in clonotypes: #each key is the combination of V gene, J gene and the length of cdr3, the values are the sequence ID and cdr3 sequence
-    # bar()
         pre_clone = colapse_unique(clonotypes[key],colunas, sequence_column)
         if len(pre_clone) > 1:
             results=clonotype(pre_clone, clonotypes[key], key, seqID, sequence_column, thr, ksize, metric)
@@ -271,9 +254,9 @@ def YClon(out_filename,filename, thr, sequence_column, vcolumn, jcolumn, cdr1,cd
     in_temp.close()
     # os.remove(temp_filename)
 
-    add_seq_count(path, seqID, clonotyped, maior,separator,out_filename)
-
-    write_report(most_common_cdr3,most_common_seq_id,maior,out_filename)
+    add_seq_count(temp_filename, seqID, clonotyped, maior,separator,out_filename)
+    if report:
+        write_report(most_common_cdr3,most_common_seq_id,maior,out_filename)
 
     current_time = time.time()
     elapsed_time = current_time - start_time

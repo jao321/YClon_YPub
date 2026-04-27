@@ -10,7 +10,8 @@ import gzip
 def directory_path(file_path):
 	temp =	file_path.split(os.sep)
 	file_path = file_path.replace(temp[len(temp)-1],"")
-	return(file_path)
+	file_name = temp[len(temp)-1].split(".")[0]
+	return file_path, file_name
 
 def simpson_di(data):
 	#from https://gist.github.com/martinjc/f227b447791df8c90568
@@ -158,6 +159,30 @@ def parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn,cdr1, cdr2, all_
 		f.close()
 	return clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail
 
+def format_OAS(filename, sequence_column, vcolumn, jcolumn, seqID, separator, all_cdrs, cdr1, cdr2, format):
+	new_filename = filename.split('.')[0]+"_YClon_OAS_input.tsv"
+	new_yclon_input = open(new_filename, "w")
+	f = gzip.open(filename,'rt')
+	f.readline()
+	seq_counter_OAS=1
+	for values in f:
+		if(values.find(sequence_column) != -1):
+			head = values.strip().split(',')
+			head.append('sequence_id')
+			seq_id_indx, junc_indx, vGene_indx, jGene_indx = get_columns_index(seqID, sequence_column, vcolumn, jcolumn, head,all_cdrs,cdr1,cdr2)
+			new_yclon_input.write('sequence_id'+separator+head[junc_indx]+separator+head[vGene_indx]+
+						 separator+head[jGene_indx]+'\n')
+			header = True
+		elif(values.find(sequence_column) == -1) :
+			tmp = values.strip().split(separator)
+			# if tmp[prod_indx].find("T")!= -1:
+			if format=='OAS':
+				new_yclon_input.write('new_seqID_'+str(seq_counter_OAS)+separator+
+						  tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+'\n')
+				seq_counter_OAS+=1
+	new_yclon_input.close()
+	return new_filename
+
 
 def organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, seqID, separator, all_cdrs, cdr1, cdr2, format):
 	rep_list = os.listdir(folder)
@@ -195,7 +220,7 @@ def organise_repertoires_from_folder(folder, sequence_column, vcolumn, jcolumn, 
 				else:
 					try:
 						ypub_input.write(tmp[seq_id_indx]+separator+tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+separator)
-						print(tmp[seq_id_indx]+separator+tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+separator)
+						# print(tmp[seq_id_indx]+separator+tmp[junc_indx]+separator+tmp[vGene_indx]+separator+tmp[jGene_indx]+separator)
 					except:
 						continue
 				
