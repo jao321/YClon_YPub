@@ -170,96 +170,125 @@ def process_key(key, clonotypes, colunas, sequence_column, seqID, thr, ksize, me
             seq_clone_id=[str(seq_id[i])+","+key+"_1"]
     return seq_clone_id
 
+def _cleanup_files(*filepaths):
+    """Remove files if they exist. Used to clean up on error."""
+    for filepath in filepaths:
+        if filepath and os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+                print(f"Cleaned up: {filepath}", flush=True)
+            except Exception as e:
+                print(f"Warning: could not remove {filepath}: {e}", flush=True)
+
+
 def YClon(out_filename,filename, thr, sequence_column, 
           vcolumn, jcolumn, cdr1,cdr2, seqID, separator, 
           ksize, short_output, all_cdrs,metric, report): 
     start_time = time.time()
-    print("Opening and reading "+filename, flush=True)
-    if tarfile.is_tarfile(filename):
-        with tarfile.open(filename) as tar:
-            binary = tar.extractfile(filename.replace('.tar.gz',''))
-            f = binary.read().decode('utf-8').strip().split('\n')
-            head = f[0]
-            f = f[1:]
-    else: 
-        f = open(filename, 'r')
-        head = f.readline().strip()
-    
-    in_airr = open(filename, 'r')
-    clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail = parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, cdr1,cdr2, all_cdrs, separator)
+
     path, base_name = directory_path(filename)
     temp_filename = path+base_name+"_YClon_temp.txt"
-    print(temp_filename)
-    print('creating temporary file...', flush=True)
-    temp = open(temp_filename, 'w')
+    out_small_name = out_filename.replace("_YClon_clonotyped.","_YClon_clonotyped_only_essential_columns.")
+    out_report_name = (out_filename.replace("_YClon_clonotyped.","_YClon_clonotyped_report.")
+                       if "_YClon_clonotyped" in out_filename
+                       else out_filename.replace(".tsv","_report.tsv"))
 
-    for key in clonotypes: #each key is the combination of V gene, J gene and the length of cdr3, the values are the sequence ID and cdr3 sequence
-        pre_clone = colapse_unique(clonotypes[key],colunas, sequence_column)
-        if len(pre_clone) > 1:
-            results=clonotype(pre_clone, clonotypes[key], key, seqID, sequence_column, thr, ksize, metric)
-            # print(len(results))
-            for x in results:
-                temp.write(x[0]+','+key+'_'+str(x[1])+'\n')
-        else:
-            ct=1
-            pre_clone = pd.DataFrame(clonotypes[key])
-            pre_clone.columns = colunas
-            seq_id = pre_clone[seqID]
-            for i in range(0, len(clonotypes[key])):
-                temp.write(str(seq_id[i])+","+key+"_"+str(ct))
-        # unico_pq_VJLen +=1
-        # count += 1
-        # total_clust += 1
-        # pre_clone = pd.DataFrame(clonotypes[key])
-        # pre_clone.columns = colunas
-        # seq_id = pre_clone[seqID]
-        # for i in range(0, len(clonotypes[key])):
-        #     temp.write(str(seq_id[i])+","+str(count)+"\n")
-    # results = (itertools.chain.from_iterable(results))
-    
-
-    print('Assigning clonotypes...', flush=True)
-    # for x in results:
-    #     temp.write(x+'\n')
-    
-
-    temp.close()
-    in_temp = open(temp_filename, 'r')
-    out = open(out_filename, 'w+')
-
-    clonotipo = {}
-    maior ={}
-    maximo = 0
-
-
-    for x in in_temp:
-        data = x.strip().split(",")
-        clonotipo[','.join(data[0:-1])] = data[-1].strip()
-        if data[-1] not in maior:
-            maior[data[-1]] = []
-            maior[data[-1]].append(','.join(data[0:-1]))
-        else:
-            maior[data[-1]].append(','.join(data[0:-1]))
-
-    seq_list = []
-    if tarfile.is_tarfile(filename):
-        with tarfile.open(filename) as tar:
-            binary = tar.extractfile(filename.replace('.tar.gz',''))
-            in_airr = binary.read().decode('utf-8').split('\n')
-    else: 
+    try:
+        print("Opening and reading "+filename, flush=True)
+        if tarfile.is_tarfile(filename):
+            with tarfile.open(filename) as tar:
+                binary = tar.extractfile(filename.replace('.tar.gz',''))
+                f = binary.read().decode('utf-8').strip().split('\n')
+                head = f[0]
+                f = f[1:]
+        else: 
+            f = open(filename, 'r')
+            head = f.readline().strip()
+        
         in_airr = open(filename, 'r')
-    most_common_seq_id, most_common_cdr3, clonotyped = write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx, vGene_indx, jGene_indx, junc_indx, short_output)
+        clonotypes, colunas, seq_id_indx, junc_indx, vGene_indx, jGene_indx, fail = parse_AIRR(f,head, seqID, sequence_column, vcolumn, jcolumn, cdr1,cdr2, all_cdrs, separator)
+        print(temp_filename)
+        print('creating temporary file...', flush=True)
+        temp = open(temp_filename, 'w')
 
-    out.close()
-    in_temp.close()
-    # os.remove(temp_filename)
+        for key in clonotypes: #each key is the combination of V gene, J gene and the length of cdr3, the values are the sequence ID and cdr3 sequence
+            pre_clone = colapse_unique(clonotypes[key],colunas, sequence_column)
+            if len(pre_clone) > 1:
+                results=clonotype(pre_clone, clonotypes[key], key, seqID, sequence_column, thr, ksize, metric)
+                # print(len(results))
+                for x in results:
+                    temp.write(x[0]+','+key+'_'+str(x[1])+'\n')
+            else:
+                ct=1
+                pre_clone = pd.DataFrame(clonotypes[key])
+                pre_clone.columns = colunas
+                seq_id = pre_clone[seqID]
+                for i in range(0, len(clonotypes[key])):
+                    temp.write(str(seq_id[i])+","+key+"_"+str(ct))
+            # unico_pq_VJLen +=1
+            # count += 1
+            # total_clust += 1
+            # pre_clone = pd.DataFrame(clonotypes[key])
+            # pre_clone.columns = colunas
+            # seq_id = pre_clone[seqID]
+            # for i in range(0, len(clonotypes[key])):
+            #     temp.write(str(seq_id[i])+","+str(count)+"\n")
+        # results = (itertools.chain.from_iterable(results))
+        
 
-    add_seq_count(temp_filename, seqID, clonotyped, maior,separator,out_filename)
-    if report:
-        write_report(most_common_cdr3,most_common_seq_id,maior,out_filename)
+        print('Assigning clonotypes...', flush=True)
+        # for x in results:
+        #     temp.write(x+'\n')
+        
 
-    current_time = time.time()
-    elapsed_time = current_time - start_time
+        temp.close()
+        in_temp = open(temp_filename, 'r')
+        out = open(out_filename, 'w+')
 
-    print("The work was completed in: " + "%.3f" % int(elapsed_time) + " seconds", flush=True)
-    print(str(fail)+ " sequences could not be assigned to any clones", flush=True)
+        clonotipo = {}
+        maior ={}
+        maximo = 0
+
+
+        for x in in_temp:
+            data = x.strip().split(",")
+            clonotipo[','.join(data[0:-1])] = data[-1].strip()
+            if data[-1] not in maior:
+                maior[data[-1]] = []
+                maior[data[-1]].append(','.join(data[0:-1]))
+            else:
+                maior[data[-1]].append(','.join(data[0:-1]))
+
+        seq_list = []
+        if tarfile.is_tarfile(filename):
+            with tarfile.open(filename) as tar:
+                binary = tar.extractfile(filename.replace('.tar.gz',''))
+                in_airr = binary.read().decode('utf-8').split('\n')
+        else: 
+            in_airr = open(filename, 'r')
+        most_common_seq_id, most_common_cdr3, clonotyped = write_output(in_airr, seqID, out_filename, clonotipo, separator, seq_id_indx, vGene_indx, jGene_indx, junc_indx, short_output)
+
+        out.close()
+        in_temp.close()
+        # os.remove(temp_filename)
+
+        add_seq_count(temp_filename, seqID, clonotyped, maior,separator,out_filename)
+        if report:
+            write_report(most_common_cdr3,most_common_seq_id,maior,out_filename)
+
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+
+        print("The work was completed in: " + "%.3f" % int(elapsed_time) + " seconds", flush=True)
+        print(str(fail)+ " sequences could not be assigned to any clones", flush=True)
+
+    except Exception as e:
+        print(f"\nERROR: {e}", flush=True)
+        print("Cleaning up output files...", flush=True)
+        _cleanup_files(
+            temp_filename,
+            out_filename,
+            out_small_name if short_output else None,
+            out_report_name if report else None,
+        )
+        raise

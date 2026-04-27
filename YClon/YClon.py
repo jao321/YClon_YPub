@@ -27,6 +27,7 @@ def main():
 	every_in_the_folder = False
 	public = False 
 	report = False
+	format = 'airr'
 	# verbose = False
 
 	if((("--version" in sys.argv) or ("-v" in sys.argv))):
@@ -130,14 +131,22 @@ def main():
 	path = directory_path(filename)
 
 	if every_in_the_folder == False:
-		if format == 'OAS':
-			filename = format_OAS(filename, sequence_column, vcolumn, jcolumn,
-						  seqID, separator, all_cdrs, cdr1, cdr2, format)
-		filename_temp = filename.split(".")
-		out_filename = filename_temp[0]+"_YClon_clonotyped."+filename_temp[1]
-		YClon(out_filename, filename, thr, sequence_column, 
-		vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize, 
-		short_output, all_cdrs, metric, report)
+		oas_converted_filename = None
+		try:
+			if format == 'OAS':
+				oas_converted_filename = format_OAS(filename, sequence_column, vcolumn, jcolumn,
+							  seqID, separator, all_cdrs, cdr1, cdr2, format)
+				filename = oas_converted_filename
+			filename_temp = filename.split(".")
+			out_filename = filename_temp[0]+"_YClon_clonotyped."+filename_temp[1]
+			YClon(out_filename, filename, thr, sequence_column,
+			vcolumn, jcolumn, cdr1,cdr2, seqID, separator, ksize,
+			short_output, all_cdrs, metric, report)
+		except Exception as e:
+			if oas_converted_filename and os.path.exists(oas_converted_filename):
+				os.remove(oas_converted_filename)
+				print(f"Cleaned up: {oas_converted_filename}", flush=True)
+			raise
 	# 	# clonotyping(filename, thr, sequence_column, vcolumn, jcolumn, seqID, separator, short_output,clonotyped)
 	# else:
 	# 	files = os.listdir(path)
